@@ -51,6 +51,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
 
     implementation("io.github.afreakyelf:Pdf-Viewer:2.3.7")
+    implementation("androidx.core:core-splashscreen:1.0.0")
 
 
 
