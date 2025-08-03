@@ -84,7 +84,7 @@ fun HutbeDetailScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            PdfViewer(url = hutbe!!.PDF!!)
+            PdfViewer(url = hutbe!!.PDF!!, modifier = Modifier.fillMaxSize())
         }
     }
 }

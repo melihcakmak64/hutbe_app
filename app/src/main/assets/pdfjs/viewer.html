@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Minimal PDF Viewer</title>
+    <script src="pdf.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; }
+        canvas { width: 100%; height: auto; display: block; }
+    </style>
+</head>
+<body>
+<canvas id="pdf-canvas"></canvas>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.js'; // bu satırı ekle
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const pdfUrl = urlParams.get('file');
+
+  const loadingTask = pdfjsLib.getDocument(pdfUrl);
+  loadingTask.promise.then(pdf => {
+    pdf.getPage(1).then(page => {
+      const scale = 1.5;
+      const viewport = page.getViewport({ scale });
+      const canvas = document.getElementById('pdf-canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      const renderContext = { canvasContext: context, viewport };
+      page.render(renderContext);
+    });
+  });
+</script>
+</body>
+</html>
