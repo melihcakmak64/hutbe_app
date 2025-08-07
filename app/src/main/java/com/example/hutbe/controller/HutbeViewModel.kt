@@ -14,13 +14,11 @@ class HutbeViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     private val _loading = MutableStateFlow(true)
     private val _error = MutableStateFlow<String?>(null)
-    private val _selectedHutbe = MutableStateFlow<Hutbe?>(null)
 
     // --- State observers ---
     val searchQuery: StateFlow<String> = _searchQuery
     val loading: StateFlow<Boolean> = _loading
     val error: StateFlow<String?> = _error
-    val selectedHutbe: StateFlow<Hutbe?> = _selectedHutbe
 
     val filteredHutbeler: StateFlow<List<Hutbe>> = _searchQuery
         .combine(_allHutbeler) { query, list ->
@@ -55,7 +53,4 @@ class HutbeViewModel : ViewModel() {
         _searchQuery.value = query
     }
 
-    fun selectHutbe(hutbe: Hutbe?) {
-        _selectedHutbe.value = hutbe
-    }
 }

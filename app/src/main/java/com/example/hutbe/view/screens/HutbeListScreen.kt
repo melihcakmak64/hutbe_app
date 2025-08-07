@@ -1,5 +1,6 @@
 package com.example.hutbe.view.screens
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.hutbe.controller.HutbeViewModel
 import com.example.hutbe.model.Hutbe
 import com.example.hutbe.ui.theme.GreenBorder
@@ -32,13 +34,14 @@ import com.example.hutbe.ui.theme.GreenLight
 import com.example.hutbe.ui.theme.GreenPrimary
 import com.example.hutbe.ui.theme.GreenShadow
 import com.example.hutbe.ui.theme.LightGreenBackground
+import com.google.gson.Gson
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HutbeListScreen(
     hutbeViewModel: HutbeViewModel,
-    onNavigateToDetail: () -> Unit
+    navController: NavController,
 ) {
     val filteredHutbeler by hutbeViewModel.filteredHutbeler.collectAsState()
     val loading by hutbeViewModel.loading.collectAsState()
@@ -107,8 +110,8 @@ fun HutbeListScreen(
                             HutbeCard(
                                 hutbe = hutbe,
                                 onClick = {
-                                    hutbeViewModel.selectHutbe(hutbe)
-                                    onNavigateToDetail()
+                                    val json = Uri.encode(Gson().toJson(hutbe))
+                                    navController.navigate("hutbeDetail/$json")
                                 }
                             )
                         }

@@ -1,14 +1,14 @@
 package com.example.hutbe.view.screens
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.hutbe.controller.HutbeViewModel
 import com.example.hutbe.controller.MediaPlayerViewModel
+import com.example.hutbe.model.Hutbe
+import com.google.gson.Gson
 
 @Composable
 fun HutbeApp() {
@@ -22,18 +22,20 @@ fun HutbeApp() {
     ) {
         composable("hutbeList") {
             HutbeListScreen(
+                navController = navController,
                 hutbeViewModel = hutbeViewModel,
-                onNavigateToDetail = {
-                    navController.navigate("hutbeDetail")
-                }
             )
         }
-        composable("hutbeDetail") {
+        composable("hutbeDetail/{hutbeJson}") { backStackEntry ->
+            val hutbeJson = backStackEntry.arguments?.getString("hutbeJson")
+            val hutbe = Gson().fromJson(hutbeJson, Hutbe::class.java)
+
             HutbeDetailScreen(
-                hutbeViewModel = hutbeViewModel,
+                hutbe = hutbe,
                 mediaPlayerViewModel = mediaPlayerViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+
     }
 }

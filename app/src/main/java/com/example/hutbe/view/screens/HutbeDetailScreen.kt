@@ -15,44 +15,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.hutbe.controller.HutbeViewModel
 import com.example.hutbe.controller.MediaPlayerViewModel
+import com.example.hutbe.model.Hutbe
 import com.example.hutbe.ui.theme.GreenPrimary
 import com.example.hutbe.view.components.MediaPlayerControls
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HutbeDetailScreen(
-    hutbeViewModel: HutbeViewModel,
+    hutbe: Hutbe,
     mediaPlayerViewModel: MediaPlayerViewModel,
     onNavigateBack: () -> Unit
 ) {
-    val hutbe by hutbeViewModel.selectedHutbe.collectAsState()
     val isPlaying by mediaPlayerViewModel.isPlaying.collectAsState()
     val duration by mediaPlayerViewModel.duration.collectAsState()
     val currentPosition by mediaPlayerViewModel.currentPosition.collectAsState()
 
     DisposableEffect(Unit) {
-        if (hutbe != null) {
-            mediaPlayerViewModel.prepareHutbe(hutbe!!)
-        }
+            mediaPlayerViewModel.prepareHutbe(hutbe)
+
         onDispose {
-            // Ekran kapandığında çalışacak: oynatıcıyı durdur ve seçimi temizle
             mediaPlayerViewModel.releaseMediaPlayer()
-            hutbeViewModel.selectHutbe(null)
         }
-    }
-    if (hutbe == null) {
-        Text("Hutbe bulunamadı", modifier = Modifier.fillMaxSize())
-        return
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor =GreenPrimary, titleContentColor =Color.White  ),
-                title = { Text(hutbe!!.Title) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = GreenPrimary,
+                    titleContentColor = Color.White
+                ),
+                title = { Text(hutbe.Title) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Geri",tint = Color.White)
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Geri",
+                            tint = Color.White
+                        )
                     }
                 }
             )
@@ -63,7 +63,7 @@ fun HutbeDetailScreen(
                 duration = duration,
                 currentPosition = currentPosition,
                 onPlayPause = {
-                    mediaPlayerViewModel.playHutbe(hutbe!!)
+                    mediaPlayerViewModel.playHutbe(hutbe)
                 },
                 onSeekChanged = { position ->
                     mediaPlayerViewModel.seekTo(position)
@@ -78,13 +78,13 @@ fun HutbeDetailScreen(
                 .padding(16.dp)
         ) {
             Text(
-                "Tarih: ${hutbe!!.Tarih ?: "Bilinmiyor"}",
+                "Tarih: ${hutbe.Tarih ?: "Bilinmiyor"}",
                 style = MaterialTheme.typography.bodyLarge
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            PdfViewer(url = hutbe!!.PDF!!, modifier = Modifier.fillMaxSize())
+            PdfViewer(url = hutbe.PDF!!, modifier = Modifier.fillMaxSize())
         }
     }
 }
