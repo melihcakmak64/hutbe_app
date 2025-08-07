@@ -32,7 +32,7 @@ fun HutbeDetailScreen(
     val currentPosition by mediaPlayerViewModel.currentPosition.collectAsState()
 
     DisposableEffect(Unit) {
-            mediaPlayerViewModel.prepareHutbe(hutbe)
+            mediaPlayerViewModel.prepareSound(hutbe.Ses)
 
         onDispose {
             mediaPlayerViewModel.releaseMediaPlayer()
@@ -64,7 +64,7 @@ fun HutbeDetailScreen(
                 duration = duration,
                 currentPosition = currentPosition,
                 onPlayPause = {
-                    mediaPlayerViewModel.playHutbe(hutbe)
+                    mediaPlayerViewModel.playSound(hutbe.Ses)
                 },
                 onSeekChanged = { position ->
                     mediaPlayerViewModel.seekTo(position)

@@ -4,7 +4,6 @@ package com.example.hutbe.controller
 import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.hutbe.model.Hutbe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,39 +15,36 @@ class MediaPlayerViewModel : ViewModel() {
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
 
+    private val _isPrepared = MutableStateFlow(false)
+    val isPrepared: StateFlow<Boolean> = _isPrepared
+
     private val _currentPosition = MutableStateFlow(0)
     val currentPosition: StateFlow<Int> = _currentPosition
 
     private val _duration = MutableStateFlow(0)
     val duration: StateFlow<Int> = _duration
 
-    private val _currentlyPlayingHutbe = MutableStateFlow<Hutbe?>(null)
-    val currentlyPlayingHutbe: StateFlow<Hutbe?> = _currentlyPlayingHutbe
 
-    fun playHutbe(hutbe: Hutbe) {
-        if (_currentlyPlayingHutbe.value?.ID == hutbe.ID) {
-            playPreparedHutbe()
+
+    fun playSound(soundUrl: String?) {
+        if (isPrepared.value) {
+            playPreparedSound()
         } else {
-            prepareHutbe(hutbe)
+            prepareSound(soundUrl)
         }
     }
-    fun prepareHutbe(hutbe: Hutbe) {
-        if (_currentlyPlayingHutbe.value?.ID == hutbe.ID) return
-
-        releaseMediaPlayer()
-
+    fun prepareSound(soundUrl: String?) {
         mediaPlayer = MediaPlayer().apply {
-            setDataSource(hutbe.Ses)
+            setDataSource(soundUrl)
             setOnPreparedListener {
                 _duration.value = it.duration
-                _currentlyPlayingHutbe.value = hutbe
-                // Çalmıyoruz, sadece süreyi aldık
+                _isPrepared.value=true
             }
             prepareAsync()
         }
     }
 
-    fun playPreparedHutbe() {
+    fun playPreparedSound() {
         if (_isPlaying.value) {
             pause()
         } else {
@@ -86,7 +82,7 @@ class MediaPlayerViewModel : ViewModel() {
         _isPlaying.value = false
         _currentPosition.value = 0
         _duration.value = 0
-        _currentlyPlayingHutbe.value = null
+        _isPrepared.value = false
     }
 
     override fun onCleared() {
