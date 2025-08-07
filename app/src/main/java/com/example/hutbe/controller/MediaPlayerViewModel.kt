@@ -59,28 +59,6 @@ class MediaPlayerViewModel : ViewModel() {
     }
 
 
-
-    private fun startNewHutbe(hutbe: Hutbe) {
-        releaseMediaPlayer()
-
-        mediaPlayer = MediaPlayer().apply {
-
-            setDataSource(hutbe.Ses)
-            prepareAsync()
-            setOnPreparedListener {
-                start()
-                _isPlaying.value = true
-                _duration.value = it.duration
-                _currentlyPlayingHutbe.value = hutbe
-                startProgressUpdate()
-            }
-            setOnCompletionListener {
-                _isPlaying.value = false
-                _currentPosition.value = 0
-            }
-        }
-    }
-
     private fun startProgressUpdate() {
         viewModelScope.launch {
             while (_isPlaying.value) {
@@ -95,12 +73,6 @@ class MediaPlayerViewModel : ViewModel() {
     fun pause() {
         mediaPlayer?.pause()
         _isPlaying.value = false
-    }
-
-    fun resume() {
-        mediaPlayer?.start()
-        _isPlaying.value = true
-        startProgressUpdate()
     }
 
     fun seekTo(position: Int) {

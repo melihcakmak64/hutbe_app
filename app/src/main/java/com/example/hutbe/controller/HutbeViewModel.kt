@@ -8,53 +8,46 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HutbeViewModel : ViewModel() {
+
+    // --- State holders ---
     private val _allHutbeler = MutableStateFlow<List<Hutbe>>(emptyList())
-
     private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery
-
     private val _loading = MutableStateFlow(true)
-    val loading: StateFlow<Boolean> = _loading
-
     private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
-
     private val _selectedHutbe = MutableStateFlow<Hutbe?>(null)
+
+    // --- State observers ---
+    val searchQuery: StateFlow<String> = _searchQuery
+    val loading: StateFlow<Boolean> = _loading
+    val error: StateFlow<String?> = _error
     val selectedHutbe: StateFlow<Hutbe?> = _selectedHutbe
 
-    // Arama sorgusuna göre filtrelenmiş hutbeler
-    val filteredHutbeler: StateFlow<List<Hutbe>> = combine(
-        _allHutbeler,
-        _searchQuery
-    ) { hutbeler, query ->
-        if (query.isBlank()) {
-            hutbeler
-        } else {
-            hutbeler.filter { hutbe ->
-                hutbe.Title.lowercase().contains(query.lowercase())
-            }
+    val filteredHutbeler: StateFlow<List<Hutbe>> = _searchQuery
+        .combine(_allHutbeler) { query, list ->
+            if (query.isBlank()) list
+            else list.filter { it.Title.contains(query, ignoreCase = true) }
         }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
 
     init {
         fetchHutbeler()
     }
 
-    private fun fetchHutbeler() {
-        viewModelScope.launch {
-            _loading.value = true
-            _error.value = null
-            try {
-                _allHutbeler.value = HutbeRepository.fetchHutbeler()
-            } catch (e: Exception) {
-                _error.value = "Veriler alınamadı: ${e.message}"
-            } finally {
-                _loading.value = false
-            }
+    private fun fetchHutbeler() = viewModelScope.launch {
+        _loading.value = true
+        _error.value = null
+        runCatching {
+            HutbeRepository.fetchHutbeler()
+        }.onSuccess {
+            _allHutbeler.value = it
+        }.onFailure {
+            _error.value = "Veriler alınamadı: ${it.message}"
+        }.also {
+            _loading.value = false
         }
     }
 
@@ -62,15 +55,7 @@ class HutbeViewModel : ViewModel() {
         _searchQuery.value = query
     }
 
-    fun clearSearch() {
-        _searchQuery.value = ""
-    }
-
     fun selectHutbe(hutbe: Hutbe?) {
         _selectedHutbe.value = hutbe
-    }
-
-    fun refreshHutbeler() {
-        fetchHutbeler()
     }
 }
